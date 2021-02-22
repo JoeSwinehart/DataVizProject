@@ -1,5 +1,5 @@
 ---
-title: "index.html"
+title: "Visualizing Movement"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
@@ -8,15 +8,55 @@ output:
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
+library(tidyverse)
+library(dplyr)
+library(readr)
+library(janitor)
+library(lubridate)
+library(readGPX)
 ```
+
+
+```{r importing desired data fields}
+library(readr)
+activities <- read_csv("data/activities.csv", 
+    col_types = cols_only(`Activity ID` = col_number(), 
+                          `Activity Date` =col_character(),
+                          `Activity Name` =col_character(),
+                          `Activity Type` =col_character(),
+                          `Elapsed Time` =col_number(),
+                          `Distance` =col_number(),
+                          `Elevation Gain` =col_number()))
+View(activities)
+```
+
+```{r tidying data}
+activities[63, 6] =0.91
+activities[63, 7] =0.000000
+#Activity 63 was my only swim, and entered data in yards. I converted to the needed KM for consistency. There is probably a smarter way to do this.
+activities <- activities %>%
+        clean_names()
+```
+
+```{r}
+  activities$activity_date <- mdy_hms(activities$activity_date)
+```
+
 
 Column {data-width=650}
 -----------------------------------------------------------------------
 
-### Chart A
+### Initial Visualization
 
 ```{r}
-
+ggplot(activities, aes(activity_date, distance)) +
+  geom_col(aes(color = activity_type))+
+  labs(title = "My Strava Logged Activities",
+       subtitle = "2016-2021",
+       y = "Distance (km)",
+       x = "Date",
+       caption = "I like to pedal.")+    
+  theme_minimal()
 ```
 
 Column {data-width=350}
