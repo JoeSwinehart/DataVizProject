@@ -46,7 +46,7 @@ activities <- activities %>%
 
     ```
 
-Column {data-width=650}
+Column {data-width=550}
 -----------------------------------------------------------------------
 
 ### Initial Visualization
@@ -62,10 +62,10 @@ ggplot(activities, aes(activity_date, distance)) +
   theme_minimal()
 ```
 
-Column {data-width=350}
+Column {data-width=450}
 -----------------------------------------------------------------------
 
-### Chart B
+### Table That Motion
 
 ```{r}
 activities %>% 
