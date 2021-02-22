@@ -13,7 +13,7 @@ library(dplyr)
 library(readr)
 library(janitor)
 library(lubridate)
-library(readGPX)
+library(reactable)
 ```
 
 
@@ -42,6 +42,9 @@ activities <- activities %>%
   activities$activity_date <- mdy_hms(activities$activity_date)
 ```
 
+```{r}
+
+    ```
 
 Column {data-width=650}
 -----------------------------------------------------------------------
@@ -65,7 +68,20 @@ Column {data-width=350}
 ### Chart B
 
 ```{r}
-
+activities %>% 
+  reactable(
+    searchable = TRUE,
+    filterable = TRUE,
+    columns = list(
+      activity_id = colDef(name = "Activity ID"),
+      activity_date = colDef(name = "Activity Date"),
+      activity_name = colDef(name = "Activity Name"),
+      activity_type = colDef(name = "Activity Type"),
+      elapsed_time = colDef(name = "Elapsed Time"),
+      distance = colDef(name = "Distance (km)"),
+      elevation_gain = colDef(name = "Elevation Gain (m)")
+    )
+  )
 ```
 
 ### Chart C
