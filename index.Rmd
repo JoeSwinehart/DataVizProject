@@ -1,9 +1,7 @@
 ---
 title: "Visualizing Movement"
-output: 
-  flexdashboard::flex_dashboard:
-    orientation: columns
-    vertical_layout: fill
+output: flexdashboard::flex_dashboard
+    
 ---
 
 ```{r setup, include=FALSE}
@@ -14,6 +12,7 @@ library(readr)
 library(janitor)
 library(lubridate)
 library(reactable)
+library(strava)
 ```
 
 
@@ -38,16 +37,17 @@ activities <- activities %>%
         clean_names()
 ```
 
-```{r}
+```{r cleaning up the time format}
   activities$activity_date <- mdy_hms(activities$activity_date)
 ```
 
-```{r}
+```{r bringing in the gpx data, then deleting some problematic rows of bad data}
+gpxdata <- process_data("data/activities_gpx")
+gpxdata <- slice(gpxdata, -c(63744, 63745, 63746))
+```
 
-    ```
-
-Column {data-width=550}
------------------------------------------------------------------------
+Page 1
+===================================== 
 
 ### Initial Visualization
 
@@ -62,10 +62,18 @@ ggplot(activities, aes(activity_date, distance)) +
   theme_minimal()
 ```
 
-Column {data-width=450}
------------------------------------------------------------------------
+Page 2
+=====================================  
 
-### Table That Motion
+### Exercise is more frequent, or at least I am tracking it more regularly...
+```{r}
+plot_calendar(gpxdata, unit = "distance")
+```
+
+Page 3
+=====================================     
+
+### A searchable table of my activities
 
 ```{r}
 activities %>% 
@@ -84,9 +92,27 @@ activities %>%
   )
 ```
 
-### Chart C
 
-```{r}
 
+```{r birds-eye views}
+p1 <- plot_facets(gpxdata)
+ggsave("plots/facet001.png", p1, width = 20, height = 20, units = "cm")
 ```
 
+```{r when do I exercise?}
+p5 <- plot_ridges(gpxdata)
+ggsave("plots/ridges001.png", p5, width = 20, height = 20, units = "cm")
+```
+
+```{r am I getting more active?}
+p4 <- plot_calendar(gpxdata, unit = "distance")
+ggsave("plots/calendar001.png", p4, width = 20, height = 20, units = "cm")
+```
+
+
+```{r eugene routes}
+p2 <- plot_map(gpxdata, lon_min = -122.92, lon_max = -123.1, lat_min = 43.88, lat_max = 44.1)
+ggsave("plots/map001.png", p2, width = 20, height = 15, units = "cm", dpi = 600)
+```
+
+#just work plz
