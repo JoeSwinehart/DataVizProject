@@ -1,6 +1,12 @@
 ---
 title: "Visualizing Movement"
 output: flexdashboard::flex_dashboard
+
+#In order to successfully run this code, you may need to install a few packages. These lines of code should suffice to make it happen:
+
+#install.packages(c("devtools", "mapproj", "tidyverse", "gtools"))
+
+#devtools::install_github("marcusvolz/strava")
     
 ---
 
