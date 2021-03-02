@@ -13,12 +13,18 @@ library(janitor)
 library(lubridate)
 library(reactable)
 library(strava)
+library(here)
+
+# Code for running the strava package:
+# install.packages(c("devtools", "mapproj", "tidyverse", "gtools"))
+# devtools::install_github("marcusvolz/strava")
 ```
 
 
 ```{r importing desired data fields}
 library(readr)
-activities <- read_csv("data/activities.csv", 
+activities <- read_csv(here("data/data/activities.csv"), 
+                       #updated the file path to data/data/activites because forking resuled in a .zip file from your source repo
     col_types = cols_only(`Activity ID` = col_number(), 
                           `Activity Date` =col_character(),
                           `Activity Name` =col_character(),
@@ -33,6 +39,7 @@ View(activities)
 activities[63, 6] =0.91
 activities[63, 7] =0.000000
 #Activity 63 was my only swim, and entered data in yards. I converted to the needed KM for consistency. There is probably a smarter way to do this.
+# ^ I think you've probably found the most efficient way because it's only two values to tidy and sorting within a full df would be more lines of code. - DF
 activities <- activities %>%
         clean_names()
 ```
@@ -42,7 +49,8 @@ activities <- activities %>%
 ```
 
 ```{r bringing in the gpx data, then deleting some problematic rows of bad data}
-gpxdata <- process_data("data/activities_gpx")
+gpxdata <- process_data("data/data/activities_gpx")
+# changed the file path here, as well
 gpxdata <- slice(gpxdata, -c(63744, 63745, 63746))
 ```
 
@@ -52,13 +60,16 @@ Page 1
 ### Initial Visualization
 
 ```{r}
-ggplot(activities, aes(activity_date, distance)) +
-  geom_col(aes(color = activity_type))+
+ggplot(activities, aes(activity_date, distance, color = activity_type)) +
+  geom_col(key_glyph = "timeseries")+
+  #there are probably better choices than "timeseries" for this newly discovered key_glyph. I do kind of like the up-pointing nature of this change, though!
   labs(title = "My Strava Logged Activities",
        subtitle = "2016-2021",
        y = "Distance (km)",
        x = "Date",
-       caption = "I like to pedal.")+    
+       caption = "I like to pedal into the sky.",
+       color = "Activity Type")+
+  #cleaned up the legend and had a bit of fun with your caption. Change, unless true. #E.T.
   theme_minimal()
 ```
 
@@ -67,7 +78,9 @@ Page 2
 
 ### Exercise is more frequent, or at least I am tracking it more regularly...
 ```{r}
-plot_calendar(gpxdata, unit = "distance")
+plot_calendar(gpxdata, unit = "distance") +
+  labs(title = "Exercise Across Years") +
+#I played around with making changes to plot_calendar() a fair bit, but didn't make much movement. The built-in package for this Strava function is awesome. Literally one line of code produces a really nice figure. You can definitely add some labs() components in there, if interested, but making the days/months less squishy along the x/y axes is tricky!
 ```
 
 Page 3
@@ -76,14 +89,21 @@ Page 3
 ### A searchable table of my activities
 
 ```{r}
-activities %>% 
+activities_tight <- activities %>% 
+  mutate_if(is.numeric, round, digits = 2) %>% 
+  separate(activity_date, c("Date", "Time"), sep = " ")
+# Just a few tidying suggestions.
+
+activities_tight %>% 
   reactable(
     searchable = TRUE,
     filterable = TRUE,
     columns = list(
       activity_id = colDef(name = "Activity ID"),
-      activity_date = colDef(name = "Activity Date"),
+      Date = colDef(name = "Date"),
+      Time = colDef(name = "Time"),
       activity_name = colDef(name = "Activity Name"),
+      #Added new column info here. Thought that I was going to get into trouble when I labelled the variable "Time", but it ran alright!
       activity_type = colDef(name = "Activity Type"),
       elapsed_time = colDef(name = "Elapsed Time"),
       distance = colDef(name = "Distance (km)"),
@@ -107,6 +127,7 @@ ggsave("plots/ridges001.png", p5, width = 20, height = 20, units = "cm")
 ```{r am I getting more active?}
 p4 <- plot_calendar(gpxdata, unit = "distance")
 ggsave("plots/calendar001.png", p4, width = 20, height = 20, units = "cm")
+#This actually looks really nice in full form (i.e., outside of RStudio viewer)
 ```
 
 
