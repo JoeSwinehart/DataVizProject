@@ -8,8 +8,7 @@ output: flexdashboard::flex_dashboard
 
 #devtools::install_github("marcusvolz/strava")
     
----
-
+I'm not able to run the code! I ran the installs above, but afterwards, the code chunks looked different, and I don't think were recognized as r code? It's strange, but at least I can see the final product from the link Dan posted!
 ```{r setup, include=FALSE}
 library(flexdashboard)
 library(tidyverse)
