@@ -19,6 +19,8 @@ library(janitor)
 library(lubridate)
 library(reactable)
 library(strava)
+library(here)
+library(RColorBrewer)
 ```
 
 
@@ -52,6 +54,26 @@ gpxdata <- process_data("data/activities_gpx")
 gpxdata <- slice(gpxdata, -c(63744, 63745, 63746))
 ```
 
+```{r separation of date and time}
+activities_tight <- activities %>% 
+  mutate_if(is.numeric, round, digits = 2) %>% 
+  separate(activity_date, c("Date", "Time"), sep = " ")
+
+```
+
+
+```{r less than 1% of my activies are swimming or e-bike rides, so I removed those}
+activities2 <- activities_tight
+ activities2 <- slice(activities2, -c(63, 298, 300))
+
+```
+
+```{r splitting date and time made the date info go crazy in my visualization}
+activities3 <- activities
+ activities3 <- slice(activities3, -c(63, 298, 300))
+
+```
+
 Page 1
 ===================================== 
 
@@ -73,7 +95,9 @@ Page 2
 
 ### Exercise is more frequent, or at least I am tracking it more regularly...
 ```{r}
-plot_calendar(gpxdata, unit = "distance")
+plot_calendar(gpxdata, unit = "distance") +
+  labs(title = "My Exercise Across the Years") 
+
 ```
 
 Page 3
@@ -98,6 +122,47 @@ activities %>%
   )
 ```
 
+Page 4
+===================================== 
+
+### Initial Visualization Revisited
+
+```{r}
+ggplot(activities3, aes(activity_date, distance, color = activity_type)) +
+  geom_col(key_glyph = "timeseries")+
+  labs(title = "My Strava Logged Activities",
+       subtitle = "2016-2021",
+       y = "Distance (km)",
+       x = "Date",
+       caption = "I like to pedal.",
+      color = "Activity Type")+ 
+  scale_color_brewer(palette = "Set2")+
+  theme_minimal()
+```
+
+
+Page 5
+=====================================     
+
+### An improved searchable table of my activities
+
+```{r}
+activities2 %>% 
+  reactable(
+    searchable = TRUE,
+    filterable = TRUE,
+    columns = list(
+      activity_id = colDef(name = "Activity ID"),
+      Date = colDef(name = "Date"),
+      Time = colDef(name = "Time"),
+      activity_name = colDef(name = "Activity Name"),
+      activity_type = colDef(name = "Activity Type"),
+      elapsed_time = colDef(name = "Elapsed Time"),
+      distance = colDef(name = "Distance (km)"),
+      elevation_gain = colDef(name = "Elevation Gain (m)")
+    )
+  )
+```
 
 
 ```{r birds-eye views}
@@ -106,8 +171,10 @@ ggsave("plots/facet001.png", p1, width = 20, height = 20, units = "cm")
 ```
 
 ```{r when do I exercise?}
+#it is beyond my current skill set to alter all activities to fit into my current time zone. I am pretty sure it could be done, but not by me...yet. I know my activities overseas are producing some weird spikes, as I know that 3am on Wednesday is not actually a time I exercise. Ever.
+
 p5 <- plot_ridges(gpxdata)
-ggsave("plots/ridges001.png", p5, width = 20, height = 20, units = "cm")
+ggsave("plots/ridges001.png", p5, width = 20, height = 30, units = "cm")
 ```
 
 ```{r am I getting more active?}
@@ -117,8 +184,14 @@ ggsave("plots/calendar001.png", p4, width = 20, height = 20, units = "cm")
 
 
 ```{r eugene routes}
-p2 <- plot_map(gpxdata, lon_min = -122.92, lon_max = -123.1, lat_min = 43.88, lat_max = 44.1)
+p2 <- plot_map(gpxdata, lon_min = -122.9, lon_max = -123.3, lat_min = 43.88, lat_max = 44.1)
 ggsave("plots/map001.png", p2, width = 20, height = 15, units = "cm", dpi = 600)
+```
+
+
+```{r birds-eye views improved...less distortion by adding height to the image}
+p1 <- plot_facets(gpxdata)
+ggsave("plots/facet002.png", p1, width = 20, height = 30, units = "cm")
 ```
 
 #just work plz
