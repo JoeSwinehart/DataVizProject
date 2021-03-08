@@ -86,7 +86,7 @@ These visualizations utilize data from  my own Strava logged activities from 201
 
 
 
-Page 1
+First Attempt
 ===================================== 
 
 ### Initial Visualization
@@ -102,7 +102,7 @@ ggplot(activities, aes(activity_date, distance)) +
   theme_minimal()
 ```
 
-Page 2
+A Smooshed Calendar
 =====================================  
 
 ### Exercise is more frequent, or at least I am tracking it more regularly...
@@ -112,7 +112,7 @@ plot_calendar(gpxdata, unit = "distance") +
 
 ```
 
-Page 3
+First Table Try
 =====================================     
 
 ### A searchable table of my activities
@@ -134,7 +134,7 @@ activities %>%
   )
 ```
 
-Page 4
+Initial Visualization Improved
 ===================================== 
 
 ### Initial Visualization Revisited
@@ -153,7 +153,7 @@ ggplot(activities3, aes(activity_date, distance, color = activity_type)) +
 ```
 
 
-Page 5
+A Cleaner Table
 =====================================     
 
 ### An improved searchable table of my activities
