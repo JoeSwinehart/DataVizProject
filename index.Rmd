@@ -74,6 +74,18 @@ activities3 <- activities
 
 ```
 
+Data Source {.sidebar}
+==========
+**Data Source**
+
+[Joe Swinehart](https://github.com/JoeSwinehart) created the plots on this page using the [strava](https://github.com/marcusvolz/strava) package.
+
+These visualizations utilize data from  my own Strava logged activities from 2016-2021. Strava activities can be downloaded by the user, [following a bit of guidance](https://support.strava.com/hc/en-us/articles/216918437-Exporting-your-Data-and-Bulk-Export) from Strava. 
+
+
+
+
+
 Page 1
 ===================================== 
 
