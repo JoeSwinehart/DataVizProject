@@ -58,6 +58,7 @@ gpxdata <- slice(gpxdata, -c(63744, 63745, 63746))
 activities_tight <- activities %>% 
   mutate_if(is.numeric, round, digits = 2) %>% 
   separate(activity_date, c("Date", "Time"), sep = " ")
+activities_tight <- activities_tight[-c(1)]
 
 ```
 
@@ -86,10 +87,39 @@ These visualizations utilize data from  my own Strava logged activities from 201
 
 
 
-First Attempt
+Distance and frequency over time
 ===================================== 
 
-### Initial Visualization
+Column {data-width=750}
+-----------------------------------------------------------------------
+
+
+```{r}
+ggplot(activities3, aes(activity_date, distance, color = activity_type)) +
+  geom_col(key_glyph = "timeseries")+
+  labs(title = "My Strava Logged Activities",
+       subtitle = "2016-2021",
+       y = "Distance (km)",
+       x = "Date",
+       caption = "I like to pedal.",
+      color = "Activity Type")+ 
+  scale_color_brewer(palette = "Set2")+
+  theme_minimal()
+```
+
+
+
+Column {.tabset data-width=300}
+-----------------------------------------------------------------------
+
+### About
+
+This initial visualization was about the most basic thing I could do with my data. 
+I simply graphed each activity over time to see where I was stacking up the kilometers, and if my activities were getting more frequent...or at least my logging of activities.
+The first one was a little cluttered, as I had two activity types that had very few entries, but crowded my key unnecessarily. The updated version had a classier looking key (Thanks, David!) and a friendlier color palette.
+
+### Version 1
+
 
 ```{r}
 ggplot(activities, aes(activity_date, distance)) +
@@ -102,20 +132,45 @@ ggplot(activities, aes(activity_date, distance)) +
   theme_minimal()
 ```
 
-A Smooshed Calendar
-=====================================  
 
-### Exercise is more frequent, or at least I am tracking it more regularly...
-```{r}
-plot_calendar(gpxdata, unit = "distance") +
-  labs(title = "My Exercise Across the Years") 
 
-```
-
-First Table Try
+Searchable Table
 =====================================     
 
+
+Column {data-width=750}
+-----------------------------------------------------------------------
+
 ### A searchable table of my activities
+
+```{r}
+activities2 %>% 
+  reactable(
+    searchable = TRUE,
+    filterable = TRUE,
+    columns = list(
+      Date = colDef(name = "Date"),
+      Time = colDef(name = "Time"),
+      activity_name = colDef(name = "Activity Name"),
+      activity_type = colDef(name = "Activity Type"),
+      elapsed_time = colDef(name = "Elapsed Time"),
+      distance = colDef(name = "Distance (km)"),
+      elevation_gain = colDef(name = "Elevation Gain (m)")
+    )
+  )
+```
+
+
+
+Column {.tabset data-width=300}
+-----------------------------------------------------------------------
+
+### About
+
+This table used the skills we learned in class...it was a pretty nice fit for this dataset, and I can search for particular activities pretty easily. Kind of fun. The first version was a little messier, with date and time smashed together, and a fairly useles Activity ID field...but the peer review process cleaned it up a bit.
+
+### Version 1
+
 
 ```{r}
 activities %>% 
@@ -134,53 +189,103 @@ activities %>%
   )
 ```
 
-Initial Visualization Improved
-===================================== 
 
-### Initial Visualization Revisited
-
-```{r}
-ggplot(activities3, aes(activity_date, distance, color = activity_type)) +
-  geom_col(key_glyph = "timeseries")+
-  labs(title = "My Strava Logged Activities",
-       subtitle = "2016-2021",
-       y = "Distance (km)",
-       x = "Date",
-       caption = "I like to pedal.",
-      color = "Activity Type")+ 
-  scale_color_brewer(palette = "Set2")+
-  theme_minimal()
-```
-
-
-A Cleaner Table
+View from above
 =====================================     
 
-### An improved searchable table of my activities
 
-```{r}
-activities2 %>% 
-  reactable(
-    searchable = TRUE,
-    filterable = TRUE,
-    columns = list(
-      activity_id = colDef(name = "Activity ID"),
-      Date = colDef(name = "Date"),
-      Time = colDef(name = "Time"),
-      activity_name = colDef(name = "Activity Name"),
-      activity_type = colDef(name = "Activity Type"),
-      elapsed_time = colDef(name = "Elapsed Time"),
-      distance = colDef(name = "Distance (km)"),
-      elevation_gain = colDef(name = "Elevation Gain (m)")
-    )
-  )
+Column {data-width=750}
+-----------------------------------------------------------------------
+
+
+### A view of my activities from above
+
+```{r picture, echo = F, fig.cap = "Title", out.width = '100%'}
+knitr::include_graphics("plots/facet002.png")
 ```
+
+
+Column {.tabset data-width=300}
+-----------------------------------------------------------------------
+
+### About
+
+I totally like this visualization of all of my activities, but I could tell that the initial run-through was a little off. Turns out that forcing my image into a square meant that everything was not projecting as it ought to.
+
+### Version 1
+```{r picture2, echo = F, fig.cap = "Title", out.width = '100%'}
+knitr::include_graphics("plots/facet001.png")
+```
+
+
+Local fun
+=====================================     
+
+
+Column {data-width=750}
+-----------------------------------------------------------------------
+
+
+### What have I done in Lane County?
+
+```{r picture3, echo = F, fig.cap = "Title", out.width = '100%'}
+knitr::include_graphics("plots/map002.png")
+```
+
+
+Column {.tabset data-width=300}
+-----------------------------------------------------------------------
+
+### About
+
+I totally like this visualization of all of my local activities, but on the first go-round I had the lat and long boundaries off a little, so I needed to improve that for the final.
+
+### Version 1
+```{r picture4, echo = F, fig.cap = "Title", out.width = '100%'}
+knitr::include_graphics("plots/map001.png")
+```
+
+
+
+A Calendar
+=====================================  
+
+Column {data-width=750}
+-----------------------------------------------------------------------
+
+
+### Exercise is more frequent, or at least I am tracking it more regularly...
+```{r, fig.width=20, fig.height=20}
+plot_calendar(gpxdata, unit = "distance") +
+  labs(title = "My Exercise Across the Years") 
+
+```
+
+
+Column {.tabset data-width=300}
+-----------------------------------------------------------------------
+
+### About
+
+This visualization came out of the strava package I used. I like it, but I think it could be better with some improvement to the color scheme. Guess that will be my next R project....diving under the hood of other people's code!
+
+### Version 1
+
+
+```{r, fig.width=20, fig.height=20}
+plot_calendar(gpxdata, unit = "distance") +
+  labs(title = "My Exercise Across the Years") 
+
+```
+
+
 
 
 ```{r birds-eye views}
 p1 <- plot_facets(gpxdata)
 ggsave("plots/facet001.png", p1, width = 20, height = 20, units = "cm")
 ```
+
 
 ```{r when do I exercise?}
 #it is beyond my current skill set to alter all activities to fit into my current time zone. I am pretty sure it could be done, but not by me...yet. I know my activities overseas are producing some weird spikes, as I know that 3am on Wednesday is not actually a time I exercise. Ever.
@@ -194,10 +299,14 @@ p4 <- plot_calendar(gpxdata, unit = "distance")
 ggsave("plots/calendar001.png", p4, width = 20, height = 20, units = "cm")
 ```
 
-
 ```{r eugene routes}
-p2 <- plot_map(gpxdata, lon_min = -122.9, lon_max = -123.3, lat_min = 43.88, lat_max = 44.1)
+p2 <- plot_map(gpxdata, lon_min = -122.92, lon_max = -123.1, lat_min = 43.88, lat_max = 44.1)
 ggsave("plots/map001.png", p2, width = 20, height = 15, units = "cm", dpi = 600)
+```
+
+```{r eugene routes improved}
+p2 <- plot_map(gpxdata, lon_min = -122.9, lon_max = -123.3, lat_min = 43.88, lat_max = 44.1)
+ggsave("plots/map002.png", p2, width = 20, height = 15, units = "cm", dpi = 600)
 ```
 
 
@@ -206,4 +315,3 @@ p1 <- plot_facets(gpxdata)
 ggsave("plots/facet002.png", p1, width = 20, height = 30, units = "cm")
 ```
 
-#just work plz
