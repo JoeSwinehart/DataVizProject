@@ -200,7 +200,7 @@ Column {data-width=750}
 
 ### A view of my activities from above
 
-```{r picture, echo = F, fig.cap = "Title", out.width = '100%'}
+```{r picture, echo = F, fig.cap = "Bird's-eye views", out.width = '100%'}
 knitr::include_graphics("plots/facet002.png")
 ```
 
@@ -213,7 +213,7 @@ Column {.tabset data-width=300}
 I totally like this visualization of all of my activities, but I could tell that the initial run-through was a little off. Turns out that forcing my image into a square meant that everything was not projecting as it ought to.
 
 ### Version 1
-```{r picture2, echo = F, fig.cap = "Title", out.width = '100%'}
+```{r picture2, echo = F, fig.cap = "My Activities", out.width = '100%'}
 knitr::include_graphics("plots/facet001.png")
 ```
 
@@ -228,7 +228,7 @@ Column {data-width=750}
 
 ### What have I done in Lane County?
 
-```{r picture3, echo = F, fig.cap = "Title", out.width = '100%'}
+```{r picture3, echo = F, fig.cap = "From Bear Creek to Gimpl and a few things in between", out.width = '100%'}
 knitr::include_graphics("plots/map002.png")
 ```
 
@@ -241,7 +241,7 @@ Column {.tabset data-width=300}
 I totally like this visualization of all of my local activities, but on the first go-round I had the lat and long boundaries off a little, so I needed to improve that for the final.
 
 ### Version 1
-```{r picture4, echo = F, fig.cap = "Title", out.width = '100%'}
+```{r picture4, echo = F, fig.cap = "Eugene rides", out.width = '100%'}
 knitr::include_graphics("plots/map001.png")
 ```
 
