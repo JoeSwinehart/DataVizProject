@@ -1,19 +1,18 @@
 ---
 title: "Visualizing Movement"
 output: flexdashboard::flex_dashboard
+---
 
+
+```{r setup, include=FALSE}
 #In order to successfully run this code, you may need to install a few packages. These lines of code should suffice to make it happen:
 
 #install.packages(c("devtools", "mapproj", "tidyverse", "gtools"))
 
 #devtools::install_github("marcusvolz/strava")
-    
----
 
-```{r setup, include=FALSE}
 library(flexdashboard)
 library(tidyverse)
-library(dplyr)
 library(readr)
 library(janitor)
 library(lubridate)
@@ -24,8 +23,13 @@ library(RColorBrewer)
 ```
 
 
+```{r check-data}
+if(!file.exists("data")) {
+ unzip("JoeStrava.zip") 
+}
+```
+
 ```{r importing desired data fields}
-library(readr)
 activities <- read_csv("data/activities.csv", 
     col_types = cols_only(`Activity ID` = col_number(), 
                           `Activity Date` =col_character(),
@@ -34,39 +38,59 @@ activities <- read_csv("data/activities.csv",
                           `Elapsed Time` =col_number(),
                           `Distance` =col_number(),
                           `Elevation Gain` =col_number()))
-View(activities)
 ```
 
 ```{r tidying data}
-activities[63, 6] =0.91
-activities[63, 7] =0.000000
+#activities[63, 6] =0.91
+#activities[63, 7] =0.000000
 #Activity 63 was my only swim, and entered data in yards. I converted to the needed KM for consistency. There is probably a smarter way to do this.
+
+# A more programmatic way would be something like this
+activities <- activities %>% 
+  mutate(
+    across(Distance, 
+           ~ifelse(`Activity Type` == "Swim", .x / 1093.61329834, .x)),
+    `Elevation Gain` = ifelse(is.na(`Elevation Gain`), 0, `Elevation Gain`)
+  )
+  
 activities <- activities %>%
         clean_names()
 ```
 
 ```{r cleaning up the time format}
-  activities$activity_date <- mdy_hms(activities$activity_date)
+#activities$activity_date <- mdy_hms(activities$activity_date)
+
+# do the above inside mutate instead
+activities <- activities %>% 
+  mutate(activity_date = mdy_hms(activity_date))
+
 ```
 
 ```{r bringing in the gpx data, then deleting some problematic rows of bad data}
 gpxdata <- process_data("data/activities_gpx")
-gpxdata <- slice(gpxdata, -c(63744, 63745, 63746))
+gpxdata <- slice(gpxdata, -c(63744, 63745, 63746)) # What's wrong with these rows? Would be better to identify them based on some condition
+
 ```
 
 ```{r separation of date and time}
 activities_tight <- activities %>% 
   mutate_if(is.numeric, round, digits = 2) %>% 
   separate(activity_date, c("Date", "Time"), sep = " ")
-activities_tight <- activities_tight[-c(1)]
+#activities_tight <- activities_tight[-c(1)]
+
+# Instead use teh column name
+activities_tight <- activities_tight %>% 
+  select(-activity_id)
 
 ```
 
 
 ```{r less than 1% of my activies are swimming or e-bike rides, so I removed those}
 activities2 <- activities_tight
- activities2 <- slice(activities2, -c(63, 298, 300))
+activities2 <- slice(activities2, -c(63, 298, 300))
 
+# again, better to use teh condition, e.g., 
+# activities2 %>% filter(activity_type != "E-Bike" & activity_type != "Swim)
 ```
 
 ```{r splitting date and time made the date info go crazy in my visualization}
@@ -105,6 +129,15 @@ ggplot(activities3, aes(activity_date, distance, color = activity_type)) +
       color = "Activity Type")+ 
   scale_color_brewer(palette = "Set2")+
   theme_minimal()
+
+# I would instead do a line graph showing something like total number of each 
+# activities each month. Even that is a little messy though, so I'd facet_wrap it
+# activities3 %>% 
+#   mutate(date = round_date(activity_date, "month")) %>% 
+#   count(date, activity_type) %>% 
+#   ggplot(aes(date, n)) +
+#   geom_line(aes(color = activity_type)) +
+#   facet_wrap(~activity_type)
 ```
 
 
